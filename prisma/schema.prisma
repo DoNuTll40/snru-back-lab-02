@@ -1,0 +1,36 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  PANDING
+  DOING
+  DONE
+}
+
+model users {
+  user_id       Int     @id @default(autoincrement())
+  user_username String  @db.VarChar(30) @unique
+  user_password String  @db.VarChar(72)
+  user_email    String?
+  todo          todo[]
+}
+
+model todo {
+  todo_id      Int      @id @default(autoincrement())
+  todo_title   String   @db.VarChar(150)
+  todo_status  Status   @default(PANDING)
+  todo_duedate DateTime @db.Date
+  user         users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  user_id      Int
+  createdAt    DateTime @default(now()) @map("todo_created_at") @db.Timestamp(0)
+  updatedAt    DateTime @updatedAt @map("todo_updated_at") @db.Timestamp(0)
+}
